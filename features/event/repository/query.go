@@ -1,17 +1,18 @@
 package repository
 
 import (
-	"database/sql"
 	"errors"
+
+	"github.com/jmoiron/sqlx"
 
 	agoratix "github.com/bellatrijuliana/agoratix-app/features/event"
 )
 
 type repository struct {
-	db *sql.DB
+	db *sqlx.DB
 }
 
-func NewRepository(db *sql.DB) agoratix.RepositoryInterface {
+func NewRepository(db *sqlx.DB) agoratix.RepositoryInterface {
 	return &repository{
 		db: db,
 	}

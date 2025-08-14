@@ -2,18 +2,18 @@
 package main
 
 import (
-	"database/sql"
 	"fmt"
 	"log"
 
 	"github.com/bellatrijuliana/agoratix-app/factory" // Impor factory Anda
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/jmoiron/sqlx"
 )
 
 func main() {
 	// 1. Siapkan "Bahan Baku"
 	dsn := "user:215544@tcp(127.0.0.1:3306)/agoratix?parseTime=true"
-	db, err := sql.Open("mysql", dsn)
+	db, err := sqlx.Connect("mysql", dsn)
 	if err != nil {
 		log.Fatal("cannot connect to database:", err)
 	}

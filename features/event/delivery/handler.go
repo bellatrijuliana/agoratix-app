@@ -1,8 +1,8 @@
 package delivery
 
 import (
+	"fmt"
 	"net/http"
-	"strconv"
 
 	agoratix "github.com/bellatrijuliana/agoratix-app/features/event"
 	"github.com/bellatrijuliana/agoratix-app/utils/responses"
@@ -11,6 +11,10 @@ import (
 
 type handler struct {
 	service agoratix.ServiceInterface
+}
+
+type IdRequest struct {
+	ID int `json:"id"`
 }
 
 // NewHandler membuat instance handler baru
@@ -31,28 +35,37 @@ func (h *handler) GetEventList(c echo.Context) error {
 	return c.JSON(http.StatusOK, responses.SuccessWithDataResponse(events, "successfully retrieved all events"))
 }
 
-// DeleteEvent menangani permintaan DELETE /events/:id
+// Fungsi DELETE yang mengambil ID dari body
 func (h *handler) DeleteEvent(c echo.Context) error {
-	id, _ := strconv.Atoi(c.Param("id"))
-	err := h.service.DeleteEvent(id)
+	var input IdRequest
+	if err := c.Bind(&input); err != nil {
+		return c.JSON(http.StatusBadRequest, responses.FailedResponse("invalid input data", err.Error()))
+	}
+
+	err := h.service.DeleteEvent(input.ID)
 	if err != nil {
-		// PERBAIKAN: Gunakan FailedResponse
 		return c.JSON(http.StatusInternalServerError, responses.FailedResponse("cannot delete event", err.Error()))
 	}
-	// PERBAIKAN: Gunakan SuccessResponse
 	return c.JSON(http.StatusOK, responses.SuccessResponse("event deleted successfully"))
 }
 
 // ... (Ubah fungsi handler lainnya dengan pola yang sama) ...
 
-// GetEventByID
 func (h *handler) GetEventByID(c echo.Context) error {
-	id, _ := strconv.Atoi(c.Param("id"))
-	event, err := h.service.GetEventByID(id)
+	var input IdRequest
+	if err := c.Bind(&input); err != nil {
+		return c.JSON(http.StatusBadRequest, responses.FailedResponse("invalid input data", err.Error()))
+	}
+
+	// TAMBAHKAN BARIS INI UNTUK DEBUGGING
+	fmt.Println("Mencari event dengan ID:", input.ID)
+
+	eventData, err := h.service.GetEventByID(input.ID)
 	if err != nil {
 		return c.JSON(http.StatusNotFound, responses.FailedResponse("event not found", err.Error()))
 	}
-	return c.JSON(http.StatusOK, responses.SuccessWithDataResponse(event, "successfully retrieved event"))
+
+	return c.JSON(http.StatusOK, responses.SuccessWithDataResponse(eventData, "successfully retrieved event"))
 }
 
 // InsertEvent
@@ -69,12 +82,16 @@ func (h *handler) InsertEvent(c echo.Context) error {
 	return c.JSON(http.StatusCreated, responses.SuccessWithDataResponse(newEvent, "event created successfully"))
 }
 
-// UpdateEvent
+// Fungsi UPDATE yang mengambil ID dari body
 func (h *handler) UpdateEvent(c echo.Context) error {
-	id, _ := strconv.Atoi(c.Param("id"))
 	var input agoratix.Event
 	if err := c.Bind(&input); err != nil {
-		return c.JSON(http.StatusBadRequest, responses.FailedResponse("invalid input", err.Error()))
+		return c.JSON(http.StatusBadRequest, responses.FailedResponse("invalid input data", err.Error()))
+	}
+
+	id := input.ID
+	if id == 0 {
+		return c.JSON(http.StatusBadRequest, responses.FailedResponse("id is required", ""))
 	}
 
 	updatedEvent, err := h.service.UpdateEvent(id, input)

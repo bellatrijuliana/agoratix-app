@@ -16,6 +16,7 @@ func (s *service) GetEventList() ([]agoratix.Event, error) {
 	return s.repo.GetEventList()
 }
 
+// PERBAIKAN: Hapus 'input' karena fungsi ini hanya butuh 'id'
 func (s *service) GetEventByID(id int) (agoratix.Event, error) {
 	return s.repo.GetEventByID(id)
 }

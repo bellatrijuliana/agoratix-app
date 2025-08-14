@@ -2,8 +2,7 @@
 package factory
 
 import (
-	"database/sql"
-
+	"github.com/jmoiron/sqlx"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 
@@ -13,7 +12,7 @@ import (
 )
 
 // Initialize akan membuat dan menyambungkan semua komponen, lalu mengembalikan instance Echo
-func Initialize(db *sql.DB) *echo.Echo {
+func Initialize(db *sqlx.DB) *echo.Echo {
 	// Inisialisasi semua lapisan dari bawah ke atas
 	repo := repository.NewRepository(db)
 	srv := service.NewService(repo)
@@ -27,8 +26,8 @@ func Initialize(db *sql.DB) *echo.Echo {
 	e.Use(middleware.Recover())
 
 	// Definisikan Rute Endpoint
-	e.GET("/EventList", h.GetEventList)
-	e.GET("/EventByID", h.GetEventByID)
+	e.GET("/GetEventList", h.GetEventList)
+	e.POST("/GetEventByID", h.GetEventByID)
 	e.POST("/InsertEvent", h.InsertEvent)
 	e.PUT("/UpdateEvent", h.UpdateEvent)
 	e.DELETE("DeleteEvent", h.DeleteEvent)
