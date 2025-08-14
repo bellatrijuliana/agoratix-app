@@ -77,9 +77,9 @@ func (h *handler) UpdateEvent(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, responses.FailedResponse("invalid input", err.Error()))
 	}
 
-	err := h.service.UpdateEvent(id, input)
+	updatedEvent, err := h.service.UpdateEvent(id, input)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, responses.FailedResponse("cannot update event", err.Error()))
 	}
-	return c.JSON(http.StatusOK, responses.SuccessResponse("event updated successfully"))
+	return c.JSON(http.StatusOK, responses.SuccessWithDataResponse(updatedEvent, "event updated successfully"))
 }

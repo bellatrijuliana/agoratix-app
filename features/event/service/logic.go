@@ -25,7 +25,7 @@ func (s *service) InsertEvent(input agoratix.Event) (agoratix.Event, error) {
 	return s.repo.InsertEvent(input)
 }
 
-func (s *service) UpdateEvent(id int, input agoratix.Event) error {
+func (s *service) UpdateEvent(id int, input agoratix.Event) (agoratix.Event, error) {
 	return s.repo.UpdateEvent(id, input)
 }
 

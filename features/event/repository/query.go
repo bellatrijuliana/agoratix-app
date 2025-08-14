@@ -2,6 +2,7 @@ package repository
 
 import (
 	"database/sql"
+	"errors"
 
 	agoratix "github.com/bellatrijuliana/agoratix-app/features/event"
 )
@@ -60,11 +61,19 @@ func (r *repository) InsertEvent(input agoratix.Event) (agoratix.Event, error) {
 	return input, nil
 }
 
-func (r *repository) UpdateEvent(id int, input agoratix.Event) error {
-	// Query untuk memperbarui data
+func (r *repository) UpdateEvent(id int, input agoratix.Event) (agoratix.Event, error) {
 	query := "UPDATE events SET title=?, description=?, date_time=?, location=?, category=?, organizer_id=?, organizer_name=?, image_url=?, ticket_categories=? WHERE id=?"
-	_, err := r.db.Exec(query, input.Title, input.Description, input.DateTime, input.Location, input.Category, input.OrganizerId, input.OrganizerName, input.ImageUrl, input.TicketCategories, id)
-	return err
+	result, err := r.db.Exec(query, input.Title, input.Description, input.DateTime, input.Location, input.Category, input.OrganizerId, input.OrganizerName, input.ImageUrl, input.TicketCategories, id)
+	if err != nil {
+		return agoratix.Event{}, err
+	}
+	rowsAffected, _ := result.RowsAffected()
+	if rowsAffected == 0 {
+		return agoratix.Event{}, errors.New("no rows were updated")
+	}
+
+	// Ambil kembali data yang baru saja diperbarui dan kembalikan
+	return r.GetEventByID(id)
 }
 
 func (r *repository) DeleteEvent(id int) error {
