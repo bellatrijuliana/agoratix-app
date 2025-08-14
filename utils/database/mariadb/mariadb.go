@@ -10,7 +10,6 @@ import (
 	_ "github.com/go-sql-driver/mysql"               // MariaDBドライバーです。
 )
 
-// InitDBはデータベースへの接続を初期化し、返します。
 func InitDB(cfg *config.AppConfig) *sql.DB {
 	// 設定から接続文字列を作成します。
 	dbURI := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?parseTime=true", cfg.DB_USERNAME, cfg.DB_PASSWORD, cfg.DB_HOST, cfg.DB_PORT, cfg.DB_NAME)

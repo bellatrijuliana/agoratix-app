@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	agoratix "github.com/bellatrijuliana/agoratix-app/features/event"
+	"github.com/bellatrijuliana/agoratix-app/utils/responses"
 	"github.com/labstack/echo/v4"
 )
 
@@ -23,48 +24,11 @@ func NewHandler(srv agoratix.ServiceInterface) *handler {
 func (h *handler) GetEventList(c echo.Context) error {
 	events, err := h.service.GetEventList()
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, map[string]string{"message": "cannot get events"})
+		// PERBAIKAN: Gunakan FailedResponse
+		return c.JSON(http.StatusInternalServerError, responses.FailedResponse("cannot get events", err.Error()))
 	}
-	return c.JSON(http.StatusOK, events)
-}
-
-// GetEventByID menangani permintaan GET /events/:id
-func (h *handler) GetEventByID(c echo.Context) error {
-	id, _ := strconv.Atoi(c.Param("ID"))
-	event, err := h.service.GetEventByID(id)
-	if err != nil {
-		return c.JSON(http.StatusNotFound, map[string]string{"message": "event not found"})
-	}
-	return c.JSON(http.StatusOK, event)
-}
-
-// InsertEvent menangani permintaan POST /events
-func (h *handler) InsertEvent(c echo.Context) error {
-	var input agoratix.Event
-	if err := c.Bind(&input); err != nil {
-		return c.JSON(http.StatusBadRequest, map[string]string{"message": "invalid input"})
-	}
-
-	newEvent, err := h.service.InsertEvent(input)
-	if err != nil {
-		return c.JSON(http.StatusInternalServerError, map[string]string{"message": "cannot insert event"})
-	}
-	return c.JSON(http.StatusCreated, newEvent)
-}
-
-// UpdateEvent menangani permintaan PUT /events/:id
-func (h *handler) UpdateEvent(c echo.Context) error {
-	id, _ := strconv.Atoi(c.Param("id"))
-	var input agoratix.Event
-	if err := c.Bind(&input); err != nil {
-		return c.JSON(http.StatusBadRequest, map[string]string{"message": "invalid input"})
-	}
-
-	err := h.service.UpdateEvent(id, input)
-	if err != nil {
-		return c.JSON(http.StatusInternalServerError, map[string]string{"message": "cannot update event"})
-	}
-	return c.JSON(http.StatusOK, map[string]string{"message": "event updated successfully"})
+	// PERBAIKAN: Gunakan SuccessWithDataResponse
+	return c.JSON(http.StatusOK, responses.SuccessWithDataResponse(events, "successfully retrieved all events"))
 }
 
 // DeleteEvent menangani permintaan DELETE /events/:id
@@ -72,7 +36,50 @@ func (h *handler) DeleteEvent(c echo.Context) error {
 	id, _ := strconv.Atoi(c.Param("id"))
 	err := h.service.DeleteEvent(id)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, map[string]string{"message": "cannot delete event"})
+		// PERBAIKAN: Gunakan FailedResponse
+		return c.JSON(http.StatusInternalServerError, responses.FailedResponse("cannot delete event", err.Error()))
 	}
-	return c.JSON(http.StatusOK, map[string]string{"message": "event deleted successfully"})
+	// PERBAIKAN: Gunakan SuccessResponse
+	return c.JSON(http.StatusOK, responses.SuccessResponse("event deleted successfully"))
+}
+
+// ... (Ubah fungsi handler lainnya dengan pola yang sama) ...
+
+// GetEventByID
+func (h *handler) GetEventByID(c echo.Context) error {
+	id, _ := strconv.Atoi(c.Param("id"))
+	event, err := h.service.GetEventByID(id)
+	if err != nil {
+		return c.JSON(http.StatusNotFound, responses.FailedResponse("event not found", err.Error()))
+	}
+	return c.JSON(http.StatusOK, responses.SuccessWithDataResponse(event, "successfully retrieved event"))
+}
+
+// InsertEvent
+func (h *handler) InsertEvent(c echo.Context) error {
+	var input agoratix.Event
+	if err := c.Bind(&input); err != nil {
+		return c.JSON(http.StatusBadRequest, responses.FailedResponse("invalid input", err.Error()))
+	}
+
+	newEvent, err := h.service.InsertEvent(input)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, responses.FailedResponse("cannot insert event", err.Error()))
+	}
+	return c.JSON(http.StatusCreated, responses.SuccessWithDataResponse(newEvent, "event created successfully"))
+}
+
+// UpdateEvent
+func (h *handler) UpdateEvent(c echo.Context) error {
+	id, _ := strconv.Atoi(c.Param("id"))
+	var input agoratix.Event
+	if err := c.Bind(&input); err != nil {
+		return c.JSON(http.StatusBadRequest, responses.FailedResponse("invalid input", err.Error()))
+	}
+
+	err := h.service.UpdateEvent(id, input)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, responses.FailedResponse("cannot update event", err.Error()))
+	}
+	return c.JSON(http.StatusOK, responses.SuccessResponse("event updated successfully"))
 }
