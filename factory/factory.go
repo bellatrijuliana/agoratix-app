@@ -21,11 +21,14 @@ func Initialize(db *sqlx.DB) *echo.Echo {
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 
+	//events
 	e.GET("/GetEventList", h.GetEventList)
 	e.POST("/GetEventByID", h.GetEventByID)
 	e.POST("/InsertEvent", h.InsertEvent)
 	e.PUT("/UpdateEvent", h.UpdateEvent)
 	e.DELETE("DeleteEvent", h.DeleteEvent)
+
+	//ticket category
 
 	return e
 }

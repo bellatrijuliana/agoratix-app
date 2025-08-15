@@ -78,7 +78,23 @@ func (r *repository) UpdateEvent(id int, input agoratix.Event) (agoratix.Event, 
 }
 
 func (r *repository) DeleteEvent(id int) error {
-	// Query untuk menghapus data
-	_, err := r.db.Exec("DELETE FROM events WHERE id=?", id)
-	return err
+	result, err := r.db.Exec("DELETE FROM events WHERE id=?", id)
+	if err != nil {
+		// Ini untuk error koneksi atau sintaks
+		return err
+	}
+
+	// Cek berapa banyak baris yang terpengaruh
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		// Jarang terjadi, tapi baik untuk diperiksa
+		return err
+	}
+
+	// INI KUNCINYA: Jika tidak ada baris yang terhapus, kita anggap itu error
+	if rowsAffected == 0 {
+		return errors.New("event not found or no rows were deleted")
+	}
+
+	return nil // Sukses, karena setidaknya 1 baris terhapus
 }
